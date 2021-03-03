@@ -130,8 +130,8 @@ int checkNodeStatus(char *nodeDir)
     /**
     * check the status of the Algorand node with `./goal node status -d data`.
     *
-    * @param none.
-    * @return 0 (success).
+    * @param nodeDir -> the directory the Algorand node files are stored in.
+    * @return 0
     */
     char command[250];
     sprintf(command, "cd %1$s && ./goal node status -d %2$s", nodeDir, algorandDataDirName);
