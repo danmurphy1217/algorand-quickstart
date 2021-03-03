@@ -57,17 +57,34 @@ void changeFilePermissions() {
     printf("PERMISSIONS: %d", result);
 }
 
+int runUpdateScript() {
+    system("cd /Users/danielmurphy/test-node && yes | ./update.sh -i -c stable -p ~/test-node -d ~/test-node/data -n");
+    return 0;
+}
+
+int startNode() {
+    system("cd /Users/danielmurphy/test-node && ./goal node start -d data");
+    return 0;
+};
+
+int checkNodeStatus() {
+    system("cd /Users/danielmurphy/test-node && ./goal node status -d data");
+    return 0;
+};
+
 int main () {
     std::cout << "Executing Script..." << std::endl;
     
     char fullNodePath [50];
     char dataPath [50];
+    char updateScriptPath [50];
 
     const char* algorandDataEnvVar = "ALGORAND_DATA";
-    const char* updateScript = "https://raw.githubusercontent.com/algorand/go-algorand-doc/master/downloads/installers/update.sh";
+    const char* updateScriptUrl = "https://raw.githubusercontent.com/algorand/go-algorand-doc/master/downloads/installers/update.sh";
 
     sprintf(fullNodePath, "%s/%s", userHomeDir, nodeDirName);
     sprintf(dataPath, "%s/%s", fullNodePath, algorandDataDirName);
+    sprintf(updateScriptPath, "%s/%s", fullNodePath, updateScriptFileName);
     
     printf("Node Directory Path is %s\n", fullNodePath);
     setupDirStructure(fullNodePath);
@@ -75,6 +92,9 @@ int main () {
     setEnvVar(algorandDataEnvVar, dataPath);
     printf("Algorand Data Directory: %s\n", getEnvVar("ALGORAND_DATA"));
 
-    downloadFile(updateScript, fullNodePath);
+    downloadFile(updateScriptUrl, fullNodePath);
     changeFilePermissions();
+    runUpdateScript();
+    startNode();
+    checkNodeStatus();
 }
