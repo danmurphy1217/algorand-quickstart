@@ -1,6 +1,7 @@
 #include "stdlib.h"
 #include <sys/stat.h> 
 #include <iostream>
+#include <string>
 
 
 
@@ -15,7 +16,7 @@ const char* getEnvVar(const char* envVarToGet) {
 }
 
 int setupDirStructure (char* nodeDirPath) {
-    /*
+    /**
     * check if the path exists. If it does, return 0. If it does not,
     * create the directory, set it to 777 so that everyone has RWX
     * permissions, and return from the function.
@@ -47,7 +48,7 @@ int setupDirStructure (char* nodeDirPath) {
 }
 
 char* setEnvVar(const char* varName, char* value) {
-    /*
+    /**
     * set environment variable where `varName`=`value`.
     * 
     * @param varName -> the name of the environment variable.
@@ -55,14 +56,15 @@ char* setEnvVar(const char* varName, char* value) {
     * 
     * @return -> `value`, the value assigned to `varName`.
     */
-
-    setenv(varName, value, true);
+   printf("VAR NAME: %s\n", varName);
+   printf("VALUE: %s\n", value);
+   setenv(varName, value, true);
 
     return value;
 }
 
 void downloadFile(const char* urlToDownload, char* downloadLocation){
-    /*
+    /**
     * download a file from `urlToDownload` into `downloadLocation`.
     * 
     * @param urlToDownload -> must be a valid URL to download from.
@@ -76,19 +78,20 @@ void downloadFile(const char* urlToDownload, char* downloadLocation){
     system(command);
 }
 
-void changeFilePermissions() {
-    /*
+void changeFilePermissions(const char* filePath) {
+    /**
     * change the permissions of a file to everyone can RWX.
     * 
     * @param none.
     * @return none.
     */
-    int result = chmod("/Users/danielmurphy/test-node/update.sh", S_IRWXU);
-    printf("PERMISSIONS: %d", result);
+   printf("FILE: %s\n", filePath);
+   int result = chmod(filePath, S_IRWXU);
+   printf("PERMISSIONS: %d\n", result);
 }
 
 int runUpdateScript() {
-    /*
+    /**
     * run the update.sh script
     * 
     * @param none
@@ -99,7 +102,7 @@ int runUpdateScript() {
 }
 
 int startNode() {
-    /*
+    /**
     * start the Algorand node by running `./goal node start -d data`.
     * 
     * @param none.
@@ -110,7 +113,7 @@ int startNode() {
 };
 
 int checkNodeStatus() {
-    /*
+    /**
     * check the status of the Algorand node with `./goal node status -d data`.
     *
     * @param none.
@@ -129,19 +132,19 @@ int main () {
 
     const char* algorandDataEnvVar = "ALGORAND_DATA";
     const char* updateScriptUrl = "https://raw.githubusercontent.com/algorand/go-algorand-doc/master/downloads/installers/update.sh";
-
-    sprintf(fullNodePath, "%s/%s", userHomeDir, nodeDirName);
-    sprintf(dataPath, "%s/%s", fullNodePath, algorandDataDirName);
-    sprintf(updateScriptPath, "%s/%s", fullNodePath, updateScriptFileName);
     
+    sprintf(fullNodePath, "%s/%s", userHomeDir, nodeDirName);
     printf("Node Directory Path is %s\n", fullNodePath);
     setupDirStructure(fullNodePath);
 
+    sprintf(dataPath, "%s/%s", fullNodePath, algorandDataDirName);
     setEnvVar(algorandDataEnvVar, dataPath);
     printf("Algorand Data Directory: %s\n", getEnvVar("ALGORAND_DATA"));
 
     downloadFile(updateScriptUrl, fullNodePath);
-    changeFilePermissions();
+    
+    sprintf(updateScriptPath, "%s/%s", fullNodePath, updateScriptFileName);
+    changeFilePermissions(updateScriptPath);
     runUpdateScript();
     startNode();
     checkNodeStatus();
