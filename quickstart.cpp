@@ -1,21 +1,21 @@
 #include "stdlib.h"
-#include <sys/stat.h> 
+#include <sys/stat.h>
 #include <iostream>
 #include <string>
 
+const char *userHomeDir = std::getenv("HOME");
+const char *nodeDirName = "test-node";
+const char *algorandDataDirName = "data";
+const char *updateScriptFileName = "update.sh";
 
-
-const char* userHomeDir = std::getenv("HOME");
-const char* nodeDirName = "test-node";
-const char* algorandDataDirName = "data";
-const char* updateScriptFileName = "update.sh";
-
-const char* getEnvVar(const char* envVarToGet) {
-    char* zshVar = std::getenv(envVarToGet);
+const char *getEnvVar(const char *envVarToGet)
+{
+    char *zshVar = std::getenv(envVarToGet);
     return zshVar;
 }
 
-int setupDirStructure (char* nodeDirPath) {
+int setupDirStructure(char *nodeDirPath)
+{
     /**
     * check if the path exists. If it does, return 0. If it does not,
     * create the directory, set it to 777 so that everyone has RWX
@@ -31,7 +31,8 @@ int setupDirStructure (char* nodeDirPath) {
     // https://linux.die.net/man/2/stat
     // similar to running stat test-node in command-line
 
-    if ( stat(nodeDirPath, &info) == -1 ) {
+    if (stat(nodeDirPath, &info) == -1)
+    {
         // this means stat() was not able to contact the folder
         // since it does not exist, we create it
         printf("Test Node directory does not exist, creating it now...\n");
@@ -39,7 +40,8 @@ int setupDirStructure (char* nodeDirPath) {
         int dirResponse = mkdir(nodeDirPath, 0777);
         return dirResponse;
     }
-    else {
+    else
+    {
         //  this means stat() was able to contact the folder
         // since it already exists, we skip and return.
         printf("Test Node directory already exists, skipping...\n");
@@ -47,7 +49,8 @@ int setupDirStructure (char* nodeDirPath) {
     };
 }
 
-char* setEnvVar(const char* varName, char* value) {
+char *setEnvVar(const char *varName, char *value)
+{
     /**
     * set environment variable where `varName`=`value`.
     * 
@@ -56,14 +59,15 @@ char* setEnvVar(const char* varName, char* value) {
     * 
     * @return -> `value`, the value assigned to `varName`.
     */
-   printf("VAR NAME: %s\n", varName);
-   printf("VALUE: %s\n", value);
-   setenv(varName, value, true);
+    printf("VAR NAME: %s\n", varName);
+    printf("VALUE: %s\n", value);
+    setenv(varName, value, true);
 
     return value;
 }
 
-void downloadFile(const char* urlToDownload, char* downloadLocation){
+void downloadFile(const char *urlToDownload, char *downloadLocation)
+{
     /**
     * download a file from `urlToDownload` into `downloadLocation`.
     * 
@@ -72,67 +76,82 @@ void downloadFile(const char* urlToDownload, char* downloadLocation){
     * 
     * @return none.
     */
-    char* command;
+    char *command;
     sprintf(command, "wget %s -P %s", urlToDownload, downloadLocation);
 
     system(command);
 }
 
-void changeFilePermissions(const char* filePath) {
+void changeFilePermissions(const char *filePath)
+{
     /**
     * change the permissions of a file to everyone can RWX.
     * 
     * @param none.
     * @return none.
     */
-   printf("FILE: %s\n", filePath);
-   int result = chmod(filePath, S_IRWXU);
-   printf("PERMISSIONS: %d\n", result);
+    printf("FILE: %s\n", filePath);
+    int result = chmod(filePath, S_IRWXU);
+    printf("PERMISSIONS: %d\n", result);
 }
 
-int runUpdateScript() {
+int runUpdateScript(char *nodeDir)
+{
     /**
     * run the update.sh script
     * 
-    * @param none
-    * @return 0 (success)
+    * @param nodeDir -> the directory the Algorand node files are stored in.
+    * @return 0
     */
-    system("cd /Users/danielmurphy/test-node && yes | ./update.sh -i -c stable -p ~/test-node -d ~/test-node/data -n");
+    char command[250];
+    sprintf(command, "cd %1$s && yes | ./update.sh -i -c stable -p %1$s -d %2$s -n", nodeDir, algorandDataDirName);
+    // TODO: replace with exec()
+    system(command);
     return 0;
 }
 
-int startNode() {
+int startNode(char *nodeDir)
+{
     /**
     * start the Algorand node by running `./goal node start -d data`.
     * 
-    * @param none.
-    * @return 0 (success).
+    * @param nodeDir -> the directory the Algorand node files are stored in.
+    * @return 0
     */
-    system("cd /Users/danielmurphy/test-node && ./goal node start -d data");
+    char command[250];
+    sprintf(command, "cd %1$s && ./goal node start -d %2$s", nodeDir, algorandDataDirName);
+    // TODO: replace with exec()
+    system(command);
     return 0;
 };
 
-int checkNodeStatus() {
+int checkNodeStatus(char *nodeDir)
+{
     /**
     * check the status of the Algorand node with `./goal node status -d data`.
     *
     * @param none.
     * @return 0 (success).
     */
+    char command[250];
+    sprintf(command, "cd %1$s && ./goal node status -d %2$s", nodeDir, algorandDataDirName);
+    // TODO: replace with exec()
+    system(command);
     system("cd /Users/danielmurphy/test-node && ./goal node status -d data");
     return 0;
 };
 
-int main () {
+int main()
+{
     std::cout << "Executing Script..." << std::endl;
-    
-    char fullNodePath [50];
-    char dataPath [50];
-    char updateScriptPath [50];
 
-    const char* algorandDataEnvVar = "ALGORAND_DATA";
-    const char* updateScriptUrl = "https://raw.githubusercontent.com/algorand/go-algorand-doc/master/downloads/installers/update.sh";
-    
+    char fullNodePath[50];
+    char dataPath[50];
+    char updateScriptPath[50];
+
+    const char *algorandDataEnvVar = "ALGORAND_DATA";
+    const char *updateScriptUrl = "https://raw.githubusercontent.com/algorand/go-algorand-doc/master/downloads/installers/update.sh";
+
     sprintf(fullNodePath, "%s/%s", userHomeDir, nodeDirName);
     printf("Node Directory Path is %s\n", fullNodePath);
     setupDirStructure(fullNodePath);
@@ -142,10 +161,10 @@ int main () {
     printf("Algorand Data Directory: %s\n", getEnvVar("ALGORAND_DATA"));
 
     downloadFile(updateScriptUrl, fullNodePath);
-    
+
     sprintf(updateScriptPath, "%s/%s", fullNodePath, updateScriptFileName);
     changeFilePermissions(updateScriptPath);
-    runUpdateScript();
-    startNode();
-    checkNodeStatus();
+    runUpdateScript(fullNodePath);
+    startNode(fullNodePath);
+    checkNodeStatus(fullNodePath);
 }
