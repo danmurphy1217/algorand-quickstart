@@ -4,7 +4,7 @@
 #include <string>
 
 const char *userHomeDir = std::getenv("HOME");
-const char *nodeDirName = "test-node";
+const char *nodeDirName = "node";
 const char *algorandDataDirName = "data";
 const char *updateScriptFileName = "update.sh";
 
@@ -29,13 +29,13 @@ int setupDirStructure(char *nodeDirPath)
     struct stat info;
     // we can use dot-notation to access information about the folder/file
     // https://linux.die.net/man/2/stat
-    // similar to running stat test-node in command-line
+    // similar to running stat node in command-line
 
     if (stat(nodeDirPath, &info) == -1)
     {
         // this means stat() was not able to contact the folder
         // since it does not exist, we create it
-        printf("Test Node directory does not exist, creating it now...\n");
+        printf("Node directory does not exist, creating it now...\n");
 
         int dirResponse = mkdir(nodeDirPath, 0777);
         return dirResponse;
@@ -44,7 +44,7 @@ int setupDirStructure(char *nodeDirPath)
     {
         //  this means stat() was able to contact the folder
         // since it already exists, we skip and return.
-        printf("Test Node directory already exists, skipping...\n");
+        printf("Node directory already exists, skipping...\n");
         return 0;
     };
 }
@@ -137,7 +137,6 @@ int checkNodeStatus(char *nodeDir)
     sprintf(command, "cd %1$s && ./goal node status -d %2$s", nodeDir, algorandDataDirName);
     // TODO: replace with exec()
     system(command);
-    system("cd /Users/danielmurphy/test-node && ./goal node status -d data");
     return 0;
 };
 
