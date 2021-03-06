@@ -2,6 +2,9 @@
 #include <sys/stat.h>
 #include <iostream>
 #include <string>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 
 const char *userHomeDir = std::getenv("HOME");
 const char *nodeDirName = "node";
@@ -66,7 +69,7 @@ char *setEnvVar(const char *varName, char *value)
     return value;
 }
 
-void downloadFile(const char *urlToDownload, char *downloadLocation)
+int downloadFile(char *urlToDownload, char *downloadLocation)
 {
     /**
     * download a file from `urlToDownload` into `downloadLocation`.
@@ -76,10 +79,14 @@ void downloadFile(const char *urlToDownload, char *downloadLocation)
     * 
     * @return none.
     */
-    char *command;
-    sprintf(command, "wget %s -P %s", urlToDownload, downloadLocation);
 
-    system(command);
+    char command_one[] = "wget";
+    char command_two[] = "-P";
+
+    char *argument_list[] = {command_one, urlToDownload, command_two, downloadLocation, NULL};
+    int response = execvp(argument_list[0], argument_list);
+    return response;
+    return 0;
 }
 
 void changeFilePermissions(const char *filePath)
@@ -149,7 +156,7 @@ int main()
     char updateScriptPath[50];
 
     const char *algorandDataEnvVar = "ALGORAND_DATA";
-    const char *updateScriptUrl = "https://raw.githubusercontent.com/algorand/go-algorand-doc/master/downloads/installers/update.sh";
+    char updateScriptUrl[] = "https://raw.githubusercontent.com/algorand/go-algorand-doc/master/downloads/installers/update.sh";
 
     sprintf(fullNodePath, "%s/%s", userHomeDir, nodeDirName);
     printf("Node Directory Path is %s\n", fullNodePath);
@@ -159,11 +166,30 @@ int main()
     setEnvVar(algorandDataEnvVar, dataPath);
     printf("Algorand Data Directory: %s\n", getEnvVar("ALGORAND_DATA"));
 
-    downloadFile(updateScriptUrl, fullNodePath);
+    pid_t pid;
+    pid = fork();
 
-    sprintf(updateScriptPath, "%s/%s", fullNodePath, updateScriptFileName);
-    changeFilePermissions(updateScriptPath);
-    runUpdateScript(fullNodePath);
-    startNode(fullNodePath);
-    checkNodeStatus(fullNodePath);
+    if (pid < 0)
+    {
+        printf("Error ocurred");
+        exit(-1);
+    }
+    else
+    {
+        printf("PID: %d\n", pid);
+        if (pid == 0) // child process
+        {
+            downloadFile(updateScriptUrl, fullNodePath);
+        }
+        else
+        {
+            wait(0);
+            printf("In parent process, continuing...\n");
+            sprintf(updateScriptPath, "%s/%s", fullNodePath, updateScriptFileName);
+            changeFilePermissions(updateScriptPath);
+            runUpdateScript(fullNodePath);
+            startNode(fullNodePath);
+            checkNodeStatus(fullNodePath);
+        }
+    }
 }
