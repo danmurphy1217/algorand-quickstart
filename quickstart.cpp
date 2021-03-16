@@ -78,9 +78,9 @@ void downloadFile(char *urlToDownload, char *downloadLocation)
     * @return none.
     */
 
-    char command_one[5] = "wget";
-    char command_two[3] = "-P";
-    char suppress_output[8] = "--quiet";
+    char command_one[5] = "curl";
+    char command_two[3] = "-o";
+    char suppress_output[8] = "--silent";
 
     char *argument_list[6] = {command_one, urlToDownload, command_two, downloadLocation, suppress_output, NULL};
     execvp(argument_list[0], argument_list);
@@ -150,7 +150,6 @@ int main()
 
     const char *algorandDataEnvVar = "ALGORAND_DATA";
     char updateScriptUrl[] = "https://raw.githubusercontent.com/algorand/go-algorand-doc/master/downloads/installers/update.sh";
-
 
     sprintf(fullNodePath, "%s/%s", userHomeDir, nodeDirName);
     printf("Node Directory Path is %s\n", fullNodePath);
