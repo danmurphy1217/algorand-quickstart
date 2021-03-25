@@ -80,7 +80,7 @@ void downloadFile(char *urlToDownload, char *downloadLocation)
 
     char command_one[5] = "curl";
     char command_two[3] = "-o";
-    char suppress_output[8] = "--silent";
+    char suppress_output[9] = "--silent";
 
     char *argument_list[6] = {command_one, urlToDownload, command_two, downloadLocation, suppress_output, NULL};
     execvp(argument_list[0], argument_list);
