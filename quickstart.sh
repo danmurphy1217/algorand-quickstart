@@ -10,13 +10,26 @@ run () {
 
     read -p 'Directory to Install Node [any valid directory : $HOME]: ' installation_loc # variable of where to install algorand node
     read -p 'Algorand Node Type [mainnet/testnet : mainnet]: ' node_type # type of algorand node to run
-    read -p 'Run Fast Catchup? Read about Fast Catchup Here (https://developer.algorand.org/docs/run-a-node/setup/install/#sync-node-network-using-fast-catchup) [yes/no : yes]: ' fast_catchup
-    read -p 'Automate Fast Catchups [yes/no : yes]: ' automate_catchups
+    read -p 'Run Fast Catchup? Read about Fast Catchup Here (https://developer.algorand.org/docs/run-a-node/setup/install/#sync-node-network-using-fast-catchup) [yes/no : no]: ' fast_catchup # run fast catchup during installation
+    read -p 'Automate Fast Catchups [yes/no : yes]: ' automate_catchups # automate catchups?
 
 
-    if [ -z "$installation_loc" ]; then
+    if [ -z "$installation_loc" ]; then # if $installation_loc is empty or not set
         installation_loc=$HOME
     fi;
+    
+    if [ -z $node_type ]; then # if $node_type is empty or not set
+        node_type='mainnet'
+    fi;
+
+    if [ -z fast_catchup ]; then # if $fast_catchup is empty or not set
+        fast_catchup='no'
+    fi;
+
+    if [ -z automate_catchups ]; then # if $automate_catchups is empty or not set
+        automate_catchups='no'
+    fi;
+
 
     echo "Installing in:" $installation_loc
     change_dir $installation_loc # change to $HOME dir.
@@ -119,9 +132,14 @@ run_node () {
         ./goal node start -d $ALGORAND_DATA
         echo ''
     elif [ $1 == "testnet" ]; then
-        mkdir testnetdata
-        cp genesisfiles/testnet/genesis.json $installation_loc/node/testnetdata
-        ./goal node start -d testnetdata
+        if [ -d "testnetdata" ]; then
+            cp genesisfiles/testnet/genesis.json $installation_loc/node/testnetdata
+            ./goal node start -d testnetdata
+        else 
+            mkdir testnetdata
+            cp genesisfiles/testnet/genesis.json $installation_loc/node/testnetdata
+            ./goal node start -d testnetdata
+        fi;
     else
         echo "$1 is an invalid or currently unsupported Algorand Node Type. Try: mainnet, testnet"
         exit 1;
