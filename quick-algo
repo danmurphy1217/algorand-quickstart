@@ -11,7 +11,7 @@ run () {
     read -p 'Directory to Install Node [any valid directory : $HOME]: ' installation_loc # variable of where to install algorand node
     read -p 'Algorand Node Type [mainnet/testnet : mainnet]: ' node_type # type of algorand node to run
     read -p 'Run Fast Catchup? Read about Fast Catchup Here (https://developer.algorand.org/docs/run-a-node/setup/install/#sync-node-network-using-fast-catchup) [yes/no : no]: ' fast_catchup # run fast catchup during installation
-    read -p 'Automate Fast Catchups [yes/no : no]: ' automate_catchups # automate catchups?
+    read -p 'Automate Fast Catchups [yes/no : yes]: ' automate_catchups # automate catchups?
 
 
     if [ -z "$installation_loc" ]; then # if $installation_loc is empty or not set
@@ -27,7 +27,7 @@ run () {
     fi;
 
     if [ -z "$automate_catchups" ]; then # if $automate_catchups is empty or not set
-        automate_catchups='no'
+        automate_catchups='yes'
     fi;
 
 
