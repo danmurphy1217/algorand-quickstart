@@ -11,22 +11,22 @@ run () {
     read -p 'Directory to Install Node [any valid directory : $HOME]: ' installation_loc # variable of where to install algorand node
     read -p 'Algorand Node Type [mainnet/testnet : mainnet]: ' node_type # type of algorand node to run
     read -p 'Run Fast Catchup? Read about Fast Catchup Here (https://developer.algorand.org/docs/run-a-node/setup/install/#sync-node-network-using-fast-catchup) [yes/no : no]: ' fast_catchup # run fast catchup during installation
-    read -p 'Automate Fast Catchups [yes/no : yes]: ' automate_catchups # automate catchups?
+    read -p 'Automate Fast Catchups [yes/no : no]: ' automate_catchups # automate catchups?
 
 
     if [ -z "$installation_loc" ]; then # if $installation_loc is empty or not set
         installation_loc=$HOME
     fi;
     
-    if [ -z $node_type ]; then # if $node_type is empty or not set
+    if [ -z "$node_type" ]; then # if $node_type is empty or not set
         node_type='mainnet'
     fi;
 
-    if [ -z fast_catchup ]; then # if $fast_catchup is empty or not set
+    if [ -z "$fast_catchup" ]; then # if $fast_catchup is empty or not set
         fast_catchup='no'
     fi;
 
-    if [ -z automate_catchups ]; then # if $automate_catchups is empty or not set
+    if [ -z "$automate_catchups" ]; then # if $automate_catchups is empty or not set
         automate_catchups='no'
     fi;
 
@@ -60,8 +60,10 @@ run () {
     # check the status of the node
     check_status
 
-    if [ $fast_catchup == 'yes' ]; then
+    if [[ $fast_catchup == "yes" ]]; then
         # do fast catchup
+        
+        # quietly download last catchpoint, extract the plaintext from the page w/ sed
         checkpoint=$(wget -qO- https://algorand-catchpoints.s3.us-east-2.amazonaws.com/channel/$node_type/latest.catchpoint | sed -e 's/<[^>]*>//g')
 
         cd $installation_loc/node
@@ -70,7 +72,7 @@ run () {
         echo "Running fast catchup... This may take a few minutes."
     fi;
 
-    if [ $automate_catchups == 'yes' ]; then
+    if [[ $automate_catchups == "yes" ]]; then
         crontab -l >> $installation_loc/node/catchup_cron_job
         echo "00 * * * * $installation_loc/node/update.sh -i -c stable -d $ALGORAND_DATA > $installation_loc/node/sync.log 2>&1" >> $installation_loc/node/catchup_cron_job
         crontab $installation_loc/node/catchup_cron_job
@@ -94,9 +96,9 @@ create_env_var() {
     # create ALGORAND_DATA env var
     # This tells the Algorand Node where to store data related to our node.
 
-    if [ $node_type == 'mainnet' ]; then
+    if [ "$node_type" == 'mainnet' ]; then
         export ALGORAND_DATA=$1/node/data
-    elif [ $node_type == 'testnet' ]; then
+    elif [ "$node_type" == 'testnet' ]; then
         export ALGORAND_DATA=$1/node/testnetdata
     fi;
     echo "Algorand Data Directory:" $ALGORAND_DATA
@@ -127,11 +129,11 @@ run_update_script() {
 run_node () {
     cd $installation_loc/node
     echo "STARTING NODE:"
-    if [ $1 == "mainnet" ]; then
+    if [ "$1" == "mainnet" ]; then
         # begins running the Algorand node
         ./goal node start -d $ALGORAND_DATA
         echo ''
-    elif [ $1 == "testnet" ]; then
+    elif [ "$1" == "testnet" ]; then
         if [ -d "testnetdata" ]; then
             cp genesisfiles/testnet/genesis.json $installation_loc/node/testnetdata
             ./goal node start -d testnetdata
