@@ -1,5 +1,5 @@
 # algorand-quickstart
-This shellscript provides you with one of the easiest ways to get up and running with an Algorand Node on macOS. It extrapolates some of the complexities of setting file permissions, downloading the correct scripts, and running these scripts and allows you to run just one command (`./quickstart/sh`) and start working with the Algorand APIs.
+This shellscript provides you with the easiest ways to get up and running with an Algorand Node on macOS. It extrapolates some of the complexities of setting file permissions, downloading the correct scripts, and running these scripts and allows you to run just one command (`./quickstart/sh`) and start working with the Algorand APIs.
 
 Here is a step-by-step breakdown of what this script does:
 
@@ -9,3 +9,7 @@ Here is a step-by-step breakdown of what this script does:
 4. Start the node with `./goal node start`
 5. Check the status of the node with `./goal node status`
 
+Here is how to run a node for yourself:
+1. Run `curl https://raw.githubusercontent.com/danmurphy1217/algorand-quickstart/master/quick-algo -O`
+2. Run `chmod +x quick-algo`
+3. Run `./quick-algo`, fill in the questions with your preferred settings, and wait for the installation to finish. Then you're good to check out the **node** directory and play around with the `goal` API.
